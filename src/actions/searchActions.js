@@ -9,7 +9,7 @@ export function imagesFound(images){
 
 export function isLoading(bool){
   return{
-    type:types.isLoading,
+    type:types.IS_LOADING,
     isLoading:bool
   }
 }
