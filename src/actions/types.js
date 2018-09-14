@@ -1,0 +1,3 @@
+export const SHOW_IMAGES='SHOW_IMAGES'
+export const FETCH_FAILED="FETCH_FAILED"
+export const IS_LOADING="IS_LOADING"

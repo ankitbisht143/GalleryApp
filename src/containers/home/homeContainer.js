@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 
 import Home from './home';
 
-export default class HomeContainer extends Component{
+class HomeContainer extends Component{
   constructor(props){
     super(props);
 
@@ -20,7 +20,17 @@ export default class HomeContainer extends Component{
   }
   render(){
     return(
-      <Home/>
+      <Home imageData={this.props.imageData}/>
     )
   }
 }
+
+const mapStateToProps = state => ({
+  images:state.search.images
+})
+
+const mapDispatchToProps = dispatch => ({
+  getImages:() => dispatch(actions.getImages())
+})
+
+export default connect(mapStateToProps,mapDispatchToProps)(HomeContainer)

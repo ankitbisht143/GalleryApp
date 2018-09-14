@@ -1,16 +1,30 @@
 import React from 'react';
-import {View,Text,Image} from 'react-native';
-
-import Spinner from 'react-native-loading-spinner-overlay';
+import {FlatList} from 'react-native';
+import { Container, Header, Item, Input, Icon, Button, Text, Content } from 'native-base';
 
 import {styles} from '../styles';
 
 const Home = props => {
     const {container}=styles;
     return(
-      <View style={container}>
+      <Container>
+        <Header searchBar rounded>
+          <Item>
+            <Icon name="ios-search"/>
+            <Input placeholder="Search"/>
+          </Item>
+          <Button transparent>
+            <Text>Search</Text>
+          </Button>
+        </Header>
 
-      </View>
+        <Content>
+          <FlatList data={props.imageData} keyExtractor={(x,i) => i} renderItem={({item,index}) =>
+            <Container>
+            </Container>
+          }/>
+        </Content>
+      </Container>
     )
 }
 
