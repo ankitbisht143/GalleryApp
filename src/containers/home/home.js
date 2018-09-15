@@ -3,6 +3,7 @@ import {FlatList,Dimensions,View,Alert,ActivityIndicator} from 'react-native';
 
 import FastImage from 'react-native-fast-image'
 import { Container, Header, Item, Input, Icon, Button, Text, Content, Card, Picker, Row} from 'native-base';
+import Lightbox from 'react-native-lightbox';
 
 import {styles} from '../styles';
 const SCREEN_WIDTH=Dimensions.get('window').width;
@@ -32,7 +33,9 @@ const Home = props => {
           </View>
 
           <FlatList onEndReached={props.loadMore} onEndReachedThreshold={0.5}  key={props.selectedColumn} numColumns={props.selectedColumn} data={props.persistData && props.persistData.length>0?props.persistData:props.images} keyExtractor={(x,i) => i} renderItem={({item,index}) =>
-              <FastImage style={{width:SCREEN_WIDTH/props.selectedColumn,height:SCREEN_WIDTH/props.selectedColumn}} source={{uri:props.persistData && props.persistData.length>0?item:item.pagemap && item.pagemap.cse_image && item.pagemap.cse_image.length>0?encodeURI(item.pagemap.cse_image[0].src):imagePlaceholder,priority:FastImage.priority.normal}} resizeMode={FastImage.resizeMode.stretch}/>
+            <Lightbox springConfig={{tension: 15, friction: 7}} underlayColor="white">
+              <FastImage style={{alignSelf:'center',width:SCREEN_WIDTH/props.selectedColumn,height:SCREEN_WIDTH/props.selectedColumn}} source={{uri:props.persistData && props.persistData.length>0?item:item.pagemap && item.pagemap.cse_image && item.pagemap.cse_image.length>0?encodeURI(item.pagemap.cse_image[0].src):imagePlaceholder,priority:FastImage.priority.normal}} resizeMode={FastImage.resizeMode.stretch}/>
+            </Lightbox>
           }/>
           <ActivityIndicator style={{display:props.bottomLoading?"flex":"none"}} animating={props.bottomLoading} size="small" />
 

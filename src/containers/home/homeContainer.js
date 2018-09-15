@@ -6,7 +6,6 @@ import Home from './home';
 import * as actions from '../../actions/searchActions'
 
 var page=1;
-const imagePlaceholder="http://meeconline.com/wp-content/uploads/2014/08/placeholder.png"
 
 class HomeContainer extends Component{
   constructor(props){

@@ -11,6 +11,7 @@
     "react": "16.4.1",
     "react-native": "0.56.0",
     "react-native-fast-image": "^5.0.3",
+    "react-native-lightbox": "^0.8.0",
     "react-redux": "^5.0.7",
     "redux": "^4.0.0",
     "redux-thunk": "^2.3.0"
