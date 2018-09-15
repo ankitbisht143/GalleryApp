@@ -1,9 +1,12 @@
 import React,{Component} from 'react'
-import {Alert,NetInfo,AsyncStorage} from 'react-native'
+import {Alert,NetInfo,AsyncStorage,Dimensions} from 'react-native'
 import {connect} from 'react-redux';
+import FastImage from 'react-native-fast-image'
 
 import Home from './home';
 import * as actions from '../../actions/searchActions'
+const SCREEN_WIDTH=Dimensions.get('window').width;
+const SCREEN_HEIGHT=Dimensions.get('window').height;
 
 var page=1;
 
@@ -28,14 +31,9 @@ class HomeContainer extends Component{
   componentWillUnmount(){
     page=1
     NetInfo.isConnected.removeEventListener('change', this.handleConnectionChange);
-
   }
-  componentWillReceiveProps(nextProps){
-    NetInfo.isConnected.addEventListener('change', this.handleConnectionChange);
 
-    NetInfo.isConnected.fetch().done(
-      (isConnected) => { this.setState({ status: isConnected }); }
-    );
+  componentWillReceiveProps(nextProps){
     if(nextProps.images.length>0){
       this.setState({
         images:[...this.state.images,...nextProps.images],
@@ -50,7 +48,6 @@ class HomeContainer extends Component{
     if(images.length>0){
       var imageData=[]
       var offlineData={}
-
       AsyncStorage.getItem('offline').then((value) => {
         if(value){
           value=JSON.parse(value)
@@ -70,7 +67,6 @@ class HomeContainer extends Component{
         AsyncStorage.setItem('offline',JSON.stringify(offlineData))
       })
     }
-
   }
 
   handleConnectionChange = (isConnected) => {
@@ -132,22 +128,31 @@ convertToBaseUrl(url, callback) {
   }
 
   searchImagesHandler(){
-
     page=1
+
+    NetInfo.isConnected.addEventListener('change', this.handleConnectionChange);
+
+    NetInfo.getConnectionInfo().then((connectionInfo) => {
+    if(connectionInfo.type == 'none'){
+        this.setState({
+          persistData:[]
+        },() => {
+          this.getPersistantData(this.state.searchInput)
+        })
+        return ;
+    }
     this.setState({
       images:[],
       persistData:[]
-    } ,() => {
+    },() => {
       this.props.flushImages()
-      if(this.state.status == true){
+      if(this.state.searchInput.length>0){
         this.searchImages()
       }
-      else{
-        this.getPersistantData(this.state.searchInput)
-      }
     })
-
+  });
   }
+
   onChangeColumn(column){
     this.setState({
       selectedColumn:column
@@ -174,7 +179,7 @@ convertToBaseUrl(url, callback) {
   });
   }
 
-  generateUUID() { // Public Domain/MIT
+  generateUUID() {
     var d = new Date().getTime();
     if (typeof performance !== 'undefined' && typeof performance.now === 'function'){
         d += performance.now(); //use high-precision timer if available
