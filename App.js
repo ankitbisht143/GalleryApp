@@ -7,6 +7,7 @@ import store from './src/store/store';
 
 export default class App extends Component{
   render(){
+    
     return(
       <View style={styles.container}>
         <Provider store={store}>

@@ -3,7 +3,8 @@ import * as types from '../actions/types';
 const INITIAL_STATE = {
   isLoading:false,
   images:[],
-  error:{}
+  error:{},
+  totalResults:0
 }
 
 export default function search(state=INITIAL_STATE,action){
@@ -18,7 +19,8 @@ export default function search(state=INITIAL_STATE,action){
       return{
         ...state,
         isLoading:false,
-        images:action.images
+        images:action.images,
+        totalResults:action.totalResults
       }
       break;
     case types.FETCH_FAILED:

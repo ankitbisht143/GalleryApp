@@ -1,27 +1,27 @@
 import React from 'react';
-import {FlatList,Dimensions,View} from 'react-native';
+import {FlatList,Dimensions,View,Alert,ActivityIndicator} from 'react-native';
 
 import FastImage from 'react-native-fast-image'
 import { Container, Header, Item, Input, Icon, Button, Text, Content, Card, Picker, Row} from 'native-base';
 
 import {styles} from '../styles';
 const SCREEN_WIDTH=Dimensions.get('window').width;
+const imagePlaceholder="http://meeconline.com/wp-content/uploads/2014/08/placeholder.png"
 
 const Home = props => {
-    const {container,imageContainer,text,rowContainer}=styles;
+    const {container,text,rowContainer,spinner}=styles;
     return(
       <Container>
         <Header searchBar rounded>
           <Item>
             <Icon name="ios-search"/>
-            <Input placeholder="Search"/>
+            <Input onSubmitEditing={props.searchImages} placeholder="Search" onChangeText={(searchInput) => props.handleSearchInput(searchInput)} value={props.searchInput}/>
           </Item>
-          <Button transparent>
+          <Button onPress={props.searchImages} transparent>
             <Text>Search</Text>
           </Button>
         </Header>
-
-        <Content >
+        <Content contentContainerStyle={{flex: 1}}>
           <View style={rowContainer}>
             <Text style={text}> Number of columns :</Text>
             <Picker mode="dropdown" selectedValue={props.selectedColumn} onValueChange={(column) => props.onChangeColumn(column)}>
@@ -30,11 +30,12 @@ const Home = props => {
               <Picker.Item label="4" value="4" />
             </Picker>
           </View>
-          <FlatList  key={props.selectedColumn} numColumns={props.selectedColumn} data={props.imageData} keyExtractor={(x,i) => i} renderItem={({item,index}) =>
-            <Card style={[imageContainer,{width:SCREEN_WIDTH/props.selectedColumn}]}>
 
-            </Card>
+          <FlatList onEndReached={props.loadMore} onEndReachedThreshold={0.5}  key={props.selectedColumn} numColumns={props.selectedColumn} data={props.images} keyExtractor={(x,i) => i} renderItem={({item,index}) =>
+            <FastImage style={{width:SCREEN_WIDTH/props.selectedColumn,height:SCREEN_WIDTH/props.selectedColumn}} source={{uri:item.pagemap && item.pagemap.cse_image && item.pagemap.cse_image.length>0?encodeURI(item.pagemap.cse_image[0].src):imagePlaceholder,priority:FastImage.priority.normal}} resizeMode={FastImage.resizeMode.stretch}/>
           }/>
+          <ActivityIndicator style={{display:props.bottomLoading?"flex":"none"}} animating={props.bottomLoading} size="small" />
+
         </Content>
       </Container>
     )
