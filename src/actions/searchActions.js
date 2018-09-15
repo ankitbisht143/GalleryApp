@@ -1,5 +1,5 @@
 import * as types from './types';
-const API_KEY="AIzaSyBBRV9bnwUGCNDkSMcNzNLmXcL3brDzXSQ"
+const API_KEY="AIzaSyAT6rN9tO5M0h1hrGfdSqvDXfZF7jt1sMc"
 
 export function imagesFound(images,totalResults){
   return{
@@ -15,6 +15,13 @@ export function isLoading(bool){
     isLoading:bool
   }
 }
+
+export function flushImages(){
+  return{
+    type:types.FLUSH_IMAGES,
+  }
+}
+
 
 export function getImages(searchInput,page){
   return dispatch => {

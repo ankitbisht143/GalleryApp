@@ -3,6 +3,7 @@ package com.galleryapp;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.rnfs.RNFSPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import fr.snapp.imagebase64.RNImgToBase64Package;
 import com.dylanvann.fastimage.FastImageViewPackage;
@@ -26,6 +27,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNFSPackage(),
             new RNFetchBlobPackage(),
             new RNImgToBase64Package(),
             new FastImageViewPackage()

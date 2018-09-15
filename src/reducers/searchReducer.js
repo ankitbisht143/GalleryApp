@@ -23,11 +23,9 @@ export default function search(state=INITIAL_STATE,action){
         totalResults:action.totalResults
       }
       break;
-    case types.FETCH_FAILED:
+    case types.FLUSH_IMAGES:
       return{
-        ...state,
-        isLoading:false,
-        error:action.error
+        images:[]
       }
       break;
     default:
