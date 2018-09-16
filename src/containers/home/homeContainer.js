@@ -2,6 +2,7 @@ import React,{Component} from 'react'
 import {Alert,NetInfo,AsyncStorage,Dimensions} from 'react-native'
 import {connect} from 'react-redux';
 import FastImage from 'react-native-fast-image'
+import {isEqual} from 'lodash'
 
 import Home from './home';
 import * as actions from '../../actions/searchActions'
@@ -24,21 +25,26 @@ class HomeContainer extends Component{
       images:[],
       responsePageCount:15,
       status:true,
-      persistData:[]
+      persistData:[],
+      isLoading:false
     }
   }
 
+  componentWillMount(){
+    NetInfo.getConnectionInfo().then((connectionInfo) => {
+    });
+  }
   componentWillUnmount(){
     page=1
-    NetInfo.isConnected.removeEventListener('change', this.handleConnectionChange);
+    NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectionChange);
   }
 
   componentWillReceiveProps(nextProps){
+    if(JSON.stringify(nextProps.images) == JSON.stringify(this.props.images)) {return}
     if(nextProps.images.length>0){
       this.setState({
         images:[...this.state.images,...nextProps.images],
         responsePageCount:nextProps.totalResults,
-        bottomLoading:false
       })
       this.persistData(nextProps.images,this.state.searchInput)
     }
@@ -97,13 +103,26 @@ class HomeContainer extends Component{
                 image.push(imageData)
               }
               this.setState({
-                persistData:image
+                persistData:image,
+                isLoading:false
+              })
+            }
+            else{
+              this.setState({
+                isLoading:false
               })
             }
           }
+          else{
+            this.setState({
+              isLoading:false
+            })
+          }
         })
       } catch (e) {
-
+        this.setState({
+          isLoading:false
+        })
       }
   }
 
@@ -130,12 +149,14 @@ convertToBaseUrl(url, callback) {
   searchImagesHandler(){
     page=1
 
-    NetInfo.isConnected.addEventListener('change', this.handleConnectionChange);
+    NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectionChange);
 
     NetInfo.getConnectionInfo().then((connectionInfo) => {
     if(connectionInfo.type == 'none'){
         this.setState({
-          persistData:[]
+          persistData:[],
+          images:[],
+          isLoading:true
         },() => {
           this.getPersistantData(this.state.searchInput)
         })
@@ -166,9 +187,8 @@ convertToBaseUrl(url, callback) {
   }
 
   loadMore(){
-    page=page+1
+    page=page+10
     if(this.props.totalResults >= page){
-      this.setState({bottomLoading:true})
       this.searchImages()
     }
   }
@@ -194,15 +214,14 @@ convertToBaseUrl(url, callback) {
   render(){
     return(
       <Home persistData={this.state.persistData} isLoading={this.props.isLoading} images={this.state.images} selectedColumn={this.state.selectedColumn} onChangeColumn={(column) => this.onChangeColumn(column)} handleSearchInput={(searchInput) => this.handleSearchInput(searchInput)}
-        searchInput={this.state.searchInput} searchImages={this.searchImagesHandler} loadMore={this.loadMore} bottomLoading={this.state.bottomLoading} saveImage={(image) => this.saveImage(image)}/>
+        searchInput={this.state.searchInput} isLoading={this.state.isLoading} searchImages={this.searchImagesHandler} loadMore={this.loadMore} bottomLoading={this.state.bottomLoading} saveImage={(image) => this.saveImage(image)}/>
     )
   }
 }
 
 const mapStateToProps = state => ({
   images:state.search.images,
-  totalResults:state.search.totalResults,
-  isLoading:state.search.isLoading
+  totalResults:state.search.totalResults
 })
 
 const mapDispatchToProps = dispatch => ({
