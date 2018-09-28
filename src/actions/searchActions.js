@@ -24,9 +24,10 @@ export function flushImages(){
 
 
 export function getImages(searchInput,page){
+  console.log(`https://www.googleapis.com/customsearch/v1?key=${API_KEY}&q=${searchInput}&start=${page}&cx=001593050751864939516:fn2c4tykbd4&searchType=image`);
   return dispatch => {
     dispatch(isLoading(true));
-    return fetch(`https://www.googleapis.com/customsearch/v1?key=${API_KEY}&q=${searchInput}&start=${page}&cx=012426156823760153953:0q63l3kremo`)
+    return fetch(`https://www.googleapis.com/customsearch/v1?key=${API_KEY}&q=${searchInput}&start=${page}&cx=001593050751864939516:fn2c4tykbd4&searchType=image`)
       .then((response) => {
         if(response.status < 300){
           dispatch(isLoading(false));

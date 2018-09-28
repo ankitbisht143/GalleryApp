@@ -17,6 +17,8 @@ class HomeContainer extends Component{
     this.searchImages=this.searchImages.bind(this);
     this.loadMore=this.loadMore.bind(this);
     this.searchImagesHandler=this.searchImagesHandler.bind(this);
+    this.onOpenImage=this.onOpenImage.bind(this);
+    this.onCloseImage=this.onCloseImage.bind(this)
 
     this.state={
       selectedColumn:'2',
@@ -26,51 +28,55 @@ class HomeContainer extends Component{
       responsePageCount:15,
       status:true,
       persistData:[],
-      isLoading:false
+      isLoading:false,
+      imageWidth:SCREEN_WIDTH/2,
+      imageHeight:SCREEN_WIDTH/2,
     }
   }
 
   componentWillMount(){
-    NetInfo.getConnectionInfo().then((connectionInfo) => {
-    });
+    NetInfo.getConnectionInfo().then((connectionInfo) => {});
   }
+
   componentWillUnmount(){
-    page=1
+    page = 1
     NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectionChange);
   }
 
   componentWillReceiveProps(nextProps){
+    //console.log("nextProps.images", nextProps.images);
+
     if(JSON.stringify(nextProps.images) == JSON.stringify(this.props.images)) {return}
     if(nextProps.images.length>0){
       this.setState({
-        images:[...this.state.images,...nextProps.images],
-        responsePageCount:nextProps.totalResults,
+        images: [...this.state.images, ...nextProps.images],
+        responsePageCount: nextProps.totalResults,
       })
-      this.persistData(nextProps.images,this.state.searchInput)
+      this.persistData(nextProps.images, this.state.searchInput)
     }
   }
 
-  persistData(images,searchString){
+  persistData(images, searchString){
     if(images.length>0){
       var imageData=[]
       var offlineData={}
       AsyncStorage.getItem('offline').then((value) => {
         if(value){
-          value=JSON.parse(value)
-          offlineData=value
+          value= JSON.parse(value)
+          offlineData = value
         }
         if(value && value[searchString]){
           imageData=value[searchString]
         }
-        for(var i=0;i<images.length;i++){
-          if(images[i] && images[i].pagemap && images[i].pagemap.cse_image && images[i].pagemap.cse_image.length>0){
+        for(var i=0; i<images.length; i++){
+          if(images[i] && images[i].link){
             var uuid=this.generateUUID()
-            this.saveImage(images[i].pagemap.cse_image[0].src,uuid)
+            this.saveImage(images[i].link, uuid)
             imageData.push(uuid)
           }
         }
         offlineData[searchString]=imageData
-        AsyncStorage.setItem('offline',JSON.stringify(offlineData))
+        AsyncStorage.setItem('offline', JSON.stringify(offlineData))
       })
     }
   }
@@ -85,40 +91,30 @@ class HomeContainer extends Component{
           if(value){
              resolve(value)
           }
-           resolve(null)
+          resolve(null)
         })
       });
   }
 
-    getPersistantData(searchString){
+  getPersistantData(searchString){
       try {
         AsyncStorage.getItem('offline').then( async (value) => {
-          if(value){
-            value=JSON.parse(value)
-            if(value[searchString]){
-              var searchData=value[searchString]
-              var image=[]
-              for(var i=0;i<searchData.length;i++){
-                var imageData=await this.getImage(searchData[i])
-                image.push(imageData)
-              }
-              this.setState({
-                persistData:image,
-                isLoading:false
-              })
-            }
-            else{
-              this.setState({
-                isLoading:false
-              })
-            }
-          }
-          else{
+          if(!value && !searchData=JSON.parse(value)[searchString])
             this.setState({
               isLoading:false
             })
+
+          var image = []
+          for(var i=0; i< searchData.length; i++){
+            var imageData=await this.getImage(searchData[i])
+            image.push(imageData)
           }
-        })
+
+          this.setState({
+            persistData: image,
+            isLoading:false
+          })
+        }
       } catch (e) {
         this.setState({
           isLoading:false
@@ -176,7 +172,9 @@ convertToBaseUrl(url, callback) {
 
   onChangeColumn(column){
     this.setState({
-      selectedColumn:column
+      selectedColumn:column,
+      imageWidth:SCREEN_WIDTH/column,
+      imageHeight:SCREEN_WIDTH/column,
     })
   }
 
@@ -211,22 +209,34 @@ convertToBaseUrl(url, callback) {
     });
 }
 
+  onOpenImage(){
+    this.setState({
+      imageWidth:SCREEN_WIDTH,
+      imageHeight:SCREEN_HEIGHT
+    })
+  }
+  onCloseImage(){
+    this.setState({
+      imageWidth:SCREEN_WIDTH/2,
+      imageHeight:SCREEN_WIDTH/2
+    })
+  }
   render(){
     return(
-      <Home persistData={this.state.persistData} isLoading={this.props.isLoading} images={this.state.images} selectedColumn={this.state.selectedColumn} onChangeColumn={(column) => this.onChangeColumn(column)} handleSearchInput={(searchInput) => this.handleSearchInput(searchInput)}
+      <Home onCloseImage={this.onCloseImage} imageHeight={this.state.imageHeight} imageWidth={this.state.imageWidth} onOpenImage={this.onOpenImage} persistData={this.state.persistData} isLoading={this.props.isLoading} images={this.state.images} selectedColumn={this.state.selectedColumn} onChangeColumn={(column) => this.onChangeColumn(column)} handleSearchInput={(searchInput) => this.handleSearchInput(searchInput)}
         searchInput={this.state.searchInput} isLoading={this.state.isLoading} searchImages={this.searchImagesHandler} loadMore={this.loadMore} bottomLoading={this.state.bottomLoading} saveImage={(image) => this.saveImage(image)}/>
     )
   }
 }
 
 const mapStateToProps = state => ({
-  images:state.search.images,
-  totalResults:state.search.totalResults
+  images: state.search.images,
+  totalResults: state.search.totalResults
 })
 
 const mapDispatchToProps = dispatch => ({
-  getImages:(searchInput,page) => dispatch(actions.getImages(searchInput,page)),
-  flushImages:() => dispatch(actions.flushImages())
+  getImages: (searchInput,page) => dispatch(actions.getImages(searchInput,page)),
+  flushImages: () => dispatch(actions.flushImages())
 })
 
 export default connect(mapStateToProps,mapDispatchToProps)(HomeContainer)
